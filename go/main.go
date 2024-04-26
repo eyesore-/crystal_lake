@@ -13,8 +13,20 @@ import (
 	"time"
 )
 
-type Message struct {
-	Text string `json:"text"`
+const (
+	Reset   = "\033[0m"
+	Bold    = "\033[1m"
+	Red     = "\033[31m"
+	Green   = "\033[32m"
+	Yellow  = "\033[33m"
+	Blue    = "\033[34m"
+	Magenta = "\033[35m"
+	Cyan    = "\033[36m"
+	White   = "\033[37m"
+)
+
+func style(c string, s string) string {
+	return fmt.Sprintf("%s%s%s", c, s, Reset)
 }
 
 func relativePath(s string) (string, error) {
@@ -34,9 +46,9 @@ func logMiddleware(next http.Handler) http.Handler {
 		next.ServeHTTP(w, r)
 		log.Printf(
 			"%s %s - %s %s %v",
-			r.UserAgent(),
+			style(Magenta, r.UserAgent()),
 			r.RemoteAddr,
-			r.Method,
+			style(Cyan, r.Method),
 			r.RequestURI,
 			time.Since(start),
 		)
@@ -88,8 +100,10 @@ func main() {
 	http.Handle("/", logMiddleware(http.HandlerFunc(jsonHandler)))
 
 	port := ":8080"
+	localhost := "http://localhost" + port
+	localNetwork := "http://" + localIP + ":" + port
 
-	fmt.Printf("\n\n   Local:   http://localhost%s", port)
-	fmt.Printf("\n   Network: http://%s:8080\n\n", localIP)
+	fmt.Printf("\n\n   %s   %s", style(Bold, "Local:"), style(Blue, localhost))
+	fmt.Printf("\n   %s %s\n\n", style(Bold, "Network:"), style(Blue, localNetwork))
 	log.Fatal(http.ListenAndServe(port, nil))
 }

@@ -1,6 +1,17 @@
 import { networkInterfaces } from "os";
 import data from "../data.json";
 
+const RESET = "\x1b[0m";
+const style = (c: string) => (s: string) => c + s + RESET;
+const bold = style(`\x1b[1m`);
+const blue = style(`\x1b[34m`);
+const cyan = style(`\x1b[36m`);
+const magenta = style(`\x1b[35m`);
+// const green = style(`\x1b[32m`);
+// const red = style(`\x1b[31m`);
+// const yellow = style(`\x1b[33m`);
+// const white = style(`\x1b[37m`);
+
 const PORT = 3000;
 
 const nets = networkInterfaces();
@@ -11,7 +22,7 @@ const server = Bun.serve({
   fetch(req) {
     const start = Bun.nanoseconds();
     console.log(
-      `${new Date().toISOString()} ${req.headers.get("User-Agent")} - ${req.method} ${req.url} ${Bun.nanoseconds() - start}`,
+      `${new Date().toISOString()} ${magenta(req.headers.get("User-Agent"))} ${cyan(req.method)} ${req.url} ${Bun.nanoseconds() - start}ns`,
     );
 
     if (new URL(req.url).pathname === "/") {
@@ -22,5 +33,6 @@ const server = Bun.serve({
   },
 });
 
-console.log(`\n   Local:   ${server.url}`);
-console.log(`   Network: http://${localIP}:${3000}/\n`);
+const localNetwork = `http://${localIP}:${3000}/`;
+console.log(`\n   ${bold("Local:")}   ${blue(server.url)}`);
+console.log(`   ${bold("Network:")} ${blue(localNetwork)}\n`);
